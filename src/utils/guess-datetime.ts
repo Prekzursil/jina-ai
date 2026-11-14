@@ -636,7 +636,7 @@ function extractJavaScriptTimestamps(html: string): Array<{
     }> = [];
 
     // Find timestamps in script tags
-    const scriptPattern = /<script[^>]*>([\s\S]*?)<\/script>/gi;
+    const scriptPattern = /<script[^>]*>([\s\S]*?)<\/script[^>]*>/gi;
     let scriptMatch;
     while ((scriptMatch = scriptPattern.exec(html)) !== null) {
         const scriptContent = scriptMatch[1];
