@@ -241,9 +241,19 @@ function tokenizeBlogText(text: string): string[] {
 /** Ghost CMS URLs are not the public ones the blog is served from */
 function toPublicBlogUrl(post: any): string {
     let url = post.url || `https://jina.ai/news/${post.slug}`;
-    if (url.includes('cms.jina.ai')) {
+    // Match hosts exactly: a bare substring check would also match attacker
+    // URLs like https://jina-ai-gmbh.ghost.io.example.com/ or
+    // https://example.com/?ref=cms.jina.ai
+    let hostname = '';
+    try {
+        hostname = new URL(url).hostname;
+    } catch {
+        // Not a parseable absolute URL; leave it untouched.
+        return url;
+    }
+    if (hostname === 'cms.jina.ai') {
         url = url.replace('https://cms.jina.ai/', 'https://jina.ai/news/');
-    } else if (url.includes('jina-ai-gmbh.ghost.io')) {
+    } else if (hostname === 'jina-ai-gmbh.ghost.io') {
         url = url.replace('https://jina-ai-gmbh.ghost.io/podcast/', 'https://jina.ai/news/');
         url = url.replace('https://jina-ai-gmbh.ghost.io/', 'https://jina.ai/news/');
     }
