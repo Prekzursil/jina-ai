@@ -1,0 +1,46 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Weekly, Monday 04:33 UTC
+    - cron: "33 4 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      # Required to upload SARIF to code scanning
+      security-events: write
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        # Languages actually present in this repository
+        language: [javascript-typescript]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          # Strictly subsumes the default suite and the extended suite
+          queries: security-extended, security-and-quality
+
+      # JavaScript/TypeScript analysis is extraction-based; no build step
+      # is required for this repository.
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:${{ matrix.language }}
